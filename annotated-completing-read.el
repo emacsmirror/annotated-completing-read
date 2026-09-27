@@ -1,4 +1,4 @@
-;;; annotated-completing-read.el --- ergonomic completing-read wrapper/helper  -*- lexical-binding: t -*-
+;;; annotated-completing-read.el --- Ergonomic completing-read wrapper/helper  -*- lexical-binding: t -*-
 
 ;; Author: sam kleinman <garen@tychoish.com>
 ;; Assisted-by: Claude:Sonnet-4.6
