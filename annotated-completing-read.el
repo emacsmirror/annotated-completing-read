@@ -651,11 +651,11 @@ It returns an empty string if no buffers are open."
 ;;;###autoload
 (defun annotated-completing-read-setup-history ()
   "Enable savehist and desktop history integration for `annotated-completing-read'."
-  (with-eval-after-load 'desktop
-    (add-to-list 'desktop-globals-to-save 'annotated-completing-read-history))
-  (with-eval-after-load 'savehist
-    (add-to-list 'savehist-additional-variables 'annotated-completing-read-history)
-    (add-hook 'savehist-mode-hook #'annotated-completing-read--ensure-history)))
+  (require 'desktop)
+  (require 'savehist)
+  (add-to-list 'desktop-globals-to-save 'annotated-completing-read-history)
+  (add-to-list 'savehist-additional-variables 'annotated-completing-read-history)
+  (add-hook 'savehist-mode-hook #'annotated-completing-read--ensure-history))
 
 (provide 'annotated-completing-read)
 ;;; annotated-completing-read.el ends here
