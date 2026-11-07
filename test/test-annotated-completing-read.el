@@ -1685,5 +1685,36 @@ PROMPT COLLECTION REQUIRE-MATCH INITIAL-INPUT HIST) — in call order."
   (should (eq #'annotated-completing-read--multi-finish-now
               (lookup-key annotated-completing-read-multi-mode-map (kbd "M-.")))))
 
+(ert-deftest annotated-completing-read/font-name-returns-selection ()
+  "`annotated-completing-read-font-name' returns the selected font string."
+  (cl-letf (((symbol-function 'completing-read)
+             (lambda (_prompt _collection &rest _) "Source Code Pro")))
+    (should (equal "Source Code Pro"
+                   (annotated-completing-read-font-name
+                    :candidates '("Source Code Pro" "Monospace"))))))
+
+(ert-deftest annotated-completing-read/font-name-annotates-current-and-mono ()
+  "Font candidates annotate the current font and monospace variants."
+  (let* ((candidates (annotated-completing-read--normalize-font-candidates
+                      '("Source Code Pro" "Fira Code" "Helvetica")
+                      "Source Code Pro")))
+    (should (equal "current" (cdr (assoc "Source Code Pro" candidates))))
+    (should (equal "monospace" (cdr (assoc "Fira Code" candidates))))
+    (should (null (cdr (assoc "Helvetica" candidates))))))
+
+(ert-deftest annotated-completing-read/font-name-forwards-category-and-prompt ()
+  "Category 'font and custom prompt are passed through to `completing-read'."
+  (let (captured-prompt captured-category)
+    (cl-letf (((symbol-function 'completing-read)
+               (lambda (prompt collection &rest _)
+                 (setq captured-prompt prompt)
+                 (setq captured-category (alist-get 'category (acr-metadata collection)))
+                 "Monospace")))
+      (annotated-completing-read-font-name
+       :prompt "Choose font: "
+       :candidates '("Monospace"))
+      (should (string-prefix-p "Choose font:" captured-prompt))
+      (should (eq 'font captured-category)))))
+
 (provide 'test-annotated-completing-read)
 ;;; test-annotated-completing-read.el ends here
