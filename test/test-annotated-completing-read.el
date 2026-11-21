@@ -1115,6 +1115,29 @@ the invariant being tested is that key+padding is constant, not key+padding+valu
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; savehist / desktop integration (top-level registration)
 
+(defvar savehist-mode)
+(defvar savehist-mode-hook)
+(defvar desktop-save-hook)
+
+(ert-deftest annotated-completing-read/setup-history-does-not-load-persistence-libraries ()
+  "Set up history without loading desktop or savehist and normalize active history."
+  (let ((original-require (symbol-function 'require))
+        (savehist-additional-variables nil)
+        (desktop-globals-to-save nil)
+        (savehist-mode-hook nil)
+        (desktop-save-hook nil)
+        (savehist-mode t)
+        (annotated-completing-read-history '((test . "saved"))))
+    (cl-letf (((symbol-function 'require)
+               (lambda (feature &rest args)
+                 (when (memq feature '(desktop savehist))
+                   (ert-fail "Persistence library eagerly loaded"))
+                 (apply original-require feature args))))
+      (annotated-completing-read-setup-history)
+      (should (hash-table-p annotated-completing-read-history))
+      (should (member 'annotated-completing-read-history savehist-additional-variables))
+      (should (member 'annotated-completing-read-history desktop-globals-to-save)))))
+
 (ert-deftest annotated-completing-read/savehist-additional-variables ()
   "Calling setup registers history in savehist-additional-variables."
   (require 'savehist)

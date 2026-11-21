@@ -44,7 +44,9 @@
 (require 'map)
 (require 'seq)
 
-(require 'project)
+(autoload 'project-current "project")
+(declare-function project-root "project")
+(declare-function project-buffers "project")
 
 (defvar desktop-globals-to-save)
 (defvar savehist-additional-variables)
