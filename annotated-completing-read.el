@@ -712,14 +712,26 @@ candidates to annotations."
                  #'<
                  cand-list)))))
 
+(defun annotated-completing-read--register-savehist ()
+  "Register completion history when Savehist is available."
+  (when (boundp 'savehist-additional-variables)
+    (add-to-list 'savehist-additional-variables 'annotated-completing-read-history)))
+
+(defun annotated-completing-read--register-desktop ()
+  "Register completion history when Desktop is available."
+  (when (boundp 'desktop-globals-to-save)
+    (add-to-list 'desktop-globals-to-save 'annotated-completing-read-history)))
+
 ;;;###autoload
 (defun annotated-completing-read-setup-history ()
   "Enable savehist and desktop history integration for `annotated-completing-read'."
-  (require 'desktop)
-  (require 'savehist)
-  (add-to-list 'desktop-globals-to-save 'annotated-completing-read-history)
-  (add-to-list 'savehist-additional-variables 'annotated-completing-read-history)
-  (add-hook 'savehist-mode-hook #'annotated-completing-read--ensure-history))
+  (annotated-completing-read--register-savehist)
+  (annotated-completing-read--register-desktop)
+  (add-hook 'savehist-mode-hook #'annotated-completing-read--register-savehist)
+  (add-hook 'savehist-mode-hook #'annotated-completing-read--ensure-history)
+  (add-hook 'desktop-save-hook #'annotated-completing-read--register-desktop)
+  (when (bound-and-true-p savehist-mode)
+    (annotated-completing-read--ensure-history)))
 
 (provide 'annotated-completing-read)
 ;;; annotated-completing-read.el ends here
